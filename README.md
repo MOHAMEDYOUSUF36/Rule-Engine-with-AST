@@ -1,5 +1,5 @@
 # Rule-Engine-with-AST
-Tier Rule Engine Application
+# 3-Tier Rule Engine Application
 
 ## Overview
 This is a simple rule engine system using Abstract Syntax Trees (AST) to dynamically create, combine, and evaluate rules. The system determines user eligibility based on attributes like age, department, salary, etc.
