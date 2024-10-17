@@ -1,51 +1,33 @@
-from ast_structure import Node
+import unittest
+from rule_engine import RuleEngine
 
-# Function to parse a rule string and return its AST
-def create_rule(rule_string):
-    # This is a simplified parser, more complex parsers can be implemented
-    tokens = rule_string.split()  # For example, tokenize the rule string by space
-    return parse_tokens(tokens)
+class TestRuleEngine(unittest.TestCase):
+    def setUp(self):
+        self.rule_engine = RuleEngine()
 
-def parse_tokens(tokens):
-    if len(tokens) == 1:
-        return Node(node_type="operand", value=tokens[0])
-    
-    operator = tokens[1]
-    left_operand = Node(node_type="operand", value=tokens[0])
-    right_operand = Node(node_type="operand", value=tokens[2])
-    
-    return Node(node_type="operator", value=operator, left=left_operand, right=right_operand)
+    def test_create_and_evaluate_rule(self):
+        # Create rule
+        rule = "age > 30 AND salary > 50000"
+        self.rule_engine.create_rule("rule1", rule)
+        
+        # Test evaluation
+        user_data = {"age": 35, "salary": 60000}
+        self.assertTrue(self.rule_engine.evaluate_rule("rule1", user_data))
 
-# Function to combine multiple rules into a single AST
-def combine_rules(rules):
-    combined_ast = None
-    for rule in rules:
-        rule_ast = create_rule(rule)
-        if combined_ast:
-            combined_ast = Node(node_type="operator", value="AND", left=combined_ast, right=rule_ast)
-        else:
-            combined_ast = rule_ast
-    return combined_ast
+        user_data = {"age": 25, "salary": 60000}
+        self.assertFalse(self.rule_engine.evaluate_rule("rule1", user_data))
 
-# Function to evaluate the AST against data
-def evaluate_rule(ast, data):
-    if ast.type == "operand":
-        condition = ast.value.split(' ')
-        field, operator, value = condition[0], condition[1], int(condition[2])
+    def test_or_rule(self):
+        # Create rule with OR
+        rule = "age > 30 OR salary > 50000"
+        self.rule_engine.create_rule("rule2", rule)
 
-        if operator == '>':
-            return data[field] > value
-        elif operator == '<':
-            return data[field] < value
-        elif operator == '=':
-            return data[field] == value
-        else:
-            raise Exception("Invalid operator")
-    
-    elif ast.type == "operator":
-        if ast.value == "AND":
-            return evaluate_rule(ast.left, data) and evaluate_rule(ast.right, data)
-        elif ast.value == "OR":
-            return evaluate_rule(ast.left, data) or evaluate_rule(ast.right, data)
-        else:
-            raise Exception("Invalid operator in AST")
+        # Test evaluation
+        user_data = {"age": 25, "salary": 60000}
+        self.assertTrue(self.rule_engine.evaluate_rule("rule2", user_data))
+
+        user_data = {"age": 25, "salary": 40000}
+        self.assertFalse(self.rule_engine.evaluate_rule("rule2", user_data))
+
+if __name__ == '__main__':
+    unittest.main()
